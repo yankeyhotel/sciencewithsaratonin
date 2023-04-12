@@ -11,13 +11,13 @@ var cleanCSS = require('gulp-clean-css');
 var purgecss = require('gulp-purgecss');
 
 // js file paths
-var utilJsPath = 'node_modules/codyhouse-framework/docs/assets/js'; // util.js path - you may need to update this if including the framework as external node module
-var componentsJsPath = 'docs/assets/js/components/*.js'; // component js files
-var scriptsJsPath = 'docs/assets/js'; //folder for final scripts.js/scripts.min.js files
+var utilJsPath = 'node_modules/codyhouse-framework/main/assets/js'; // util.js path - you may need to update this if including the framework as external node module
+var componentsJsPath = 'assets/js/components/*.js'; // component js files
+var scriptsJsPath = 'assets/js'; //folder for final scripts.js/scripts.min.js files
 
 // css file paths
-var cssFolder = 'docs/assets/css'; // folder for final style.css/style-custom-prop-fallbac.css files
-var scssFilesPath = 'docs/assets/css/**/*.scss'; // scss files to watch
+var cssFolder = 'assets/css'; // folder for final style.css/style-custom-prop-fallbac.css files
+var scssFilesPath = 'assets/css/**/*.scss'; // scss files to watch
 
 function reload(done) {
   browserSync.reload();
@@ -60,17 +60,15 @@ gulp.task('scripts', function() {
 // This task is used to reload the project whan changes are made to a html/scss/js file.
 gulp.task('browserSync', gulp.series(function (done) {
   browserSync.init({
-    server: {
-      baseDir: 'docs'
-    },
+    server: true,
     notify: false
   })
   done();
 }));
 
 gulp.task('watch', gulp.series(['browserSync', 'sass', 'scripts'], function () {
-  gulp.watch('docs/*.html', gulp.series(reload));
-  gulp.watch('docs/assets/css/**/*.scss', gulp.series(['sass']));
+  gulp.watch('*.html', gulp.series(reload));
+  gulp.watch('assets/css/**/*.scss', gulp.series(['sass']));
   gulp.watch(componentsJsPath, gulp.series(['scripts']));
 }));
 
@@ -87,9 +85,9 @@ gulp.task('dist', async function(){
   await minifyJs();
   // copy any additional js files to the dist folder
   await moveJS();
-  // copy all the assets inside docs/assets/img folder to the dist folder
+  // copy all the assets inside main/assets/img folder to the dist folder
   await moveAssets();
-  // copy all html files inside docs folder to the dist folder 
+  // copy all html files inside main folder to the dist folder 
   await moveContent();
   console.log('Distribution task completed!')
 });
@@ -98,7 +96,7 @@ function purgeCSS() {
   return new Promise(function(resolve, reject) {
     var stream = gulp.src(cssFolder+'/style.css')
     .pipe(purgecss({
-      content: ['docs/*.html', scriptsJsPath+'/scripts.js'],
+      content: ['*.html', scriptsJsPath+'/scripts.js'],
       safelist: {
         standard: ['.is-hidden', '.is-visible'],
         deep: [/class$/],
@@ -139,7 +137,7 @@ function moveJS() {
 
 function moveAssets() {
   return new Promise(function(resolve, reject) {
-    var stream = gulp.src(['docs/assets/img/**'], { allowEmpty: true })
+    var stream = gulp.src(['assets/img/**'], { allowEmpty: true })
     .pipe(gulp.dest(assetsFolder+'img'));
     
     stream.on('finish', function() {
@@ -150,7 +148,7 @@ function moveAssets() {
 
 function moveContent() {
   return new Promise(function(resolve, reject) {
-    var stream = gulp.src('docs/*.html')
+    var stream = gulp.src('*.html')
     .pipe(gulp.dest(distFolder));
     
     stream.on('finish', function() {
